@@ -1,0 +1,465 @@
+import random
+import sys
+import csv
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+# Initial Steps to invite in the game:
+
+print("Hello users welcome to hang man")
+print("If there is only on person leave player two blank!")
+playerone = input("Enter name:\n")
+playertwo = input("Enter name:\n")
+print(playerone, "is Player One")
+print(playertwo, "is Player Two")
+print("					")
+
+def storeword(word):
+    list=[]
+    f = open("mycsv.csv","r")
+    for row in f:
+        if word not in row:
+            list.append(row)
+        else:
+            y=row.split(",")
+            name=y[0]
+            num=int(y[1])
+            rnum=num+1
+            z=(name+","+str(rnum)+"\n")
+            list.append(z)
+    f.close()
+    f=open("mycsv.csv","w")
+    i=0
+    for x in list:
+        f.write(list[i])
+        i=i+1
+    f.close()
+
+def again():
+    repeat=input("do you want to play again y or n")
+    if repeat == "y":
+        multi()
+    if repeat =="n":
+        menu()
+
+
+
+def menu():
+    print("Menu")
+    print("s - Single")
+    print("m - multiplayer")
+    print("a - AI")
+    print("j - analytics")
+
+def privacyscreen():                        #STOPS PLAYERS FROM SEEING OTHERS CARDS
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+    print("					")
+
+
+def multi():
+	print("Get ready to play Hangman!")
+	print("Tell player two to look away!")
+	word=input("can,player one input your word: ").lower()
+	privacyscreen()
+#turns the user inputted word into a lower case in one line
+	print('\n'*20)
+#Spaces out the inputted word
+	start_game(word)
+#calls back the function start_game
+def start_game(word):
+	player_lives = 6
+	used_letters =[]
+	number_dashes=["_" for i in range(len(word))]
+#Using list compression, set number_dashes to - - -....
+	print(visuals(player_lives))
+	print("")
+	print("")
+	print(" ".join(number_dashes))
+#using join function, turns '-','-' to  - -
+	while player_lives == player_lives:
+#loops forever
+		input_letter =input("Player 2, input your letter guess: ")
+		print('\n'*20)
+		if len(input_letter) > 1:
+#checks if the letter in imutted is more than 2 letters
+			player_lives-= 1
+			print(visuals(player_lives))
+			print(input_letter,"is not \'a letter\'!")
+			print("Used letters:"," ".join(used_letters))
+			print((updated_dashes(word,input_letter,number_dashes,)),'')
+#takes away a life and prints visuals, progress, and used letters
+		elif input_letter  not in used_letters and input_letter in word:
+#Checks if the letter is in the word, and not used already
+			print(visuals(player_lives))
+			print("Correct,",input_letter,"is in the word!")
+			if input_letter not in used_letters:
+				used_letters.append(str(input_letter))
+			else:
+				pass
+			print("Used letters:"," ".join(used_letters))
+			print((updated_dashes(word,input_letter,number_dashes,)),'')
+# prints new visuals, progress, and used letters
+		elif input_letter not in word :
+#Checks if the letter guessed is not in the word
+			player_lives-=1
+			print(visuals(player_lives))
+			print("Incorrect,",input_letter,"is not in the word")
+			if input_letter not in used_letters:
+				used_letters.append(str(input_letter))
+			else:
+				pass
+			print("Used letters:"," ".join(used_letters))
+			print((updated_dashes(word,input_letter,number_dashes,)),'')
+#takes away a life and prints new visuals, progress, and used letters
+		elif input_letter in used_letters:
+#Finally checks if the letter is already used
+			player_lives-=1
+			print(visuals(player_lives))
+			print("You already guessed",input_letter)
+			if input_letter not in used_letters:
+				used_letters.append(str(input_letter))
+			else:
+				pass
+			print("Used letters:"," ".join(used_letters))
+			print((updated_dashes(word,input_letter,number_dashes,)),'')
+# takes away a life and prints new visuals, progress, and used letters
+		if player_lives == 0:
+			you_lose(player_lives,word)
+#Checks if the player loses, then calls back function: you_lose
+		elif word == "".join(number_dashes):
+			you_win(player_lives,word)
+#Checks if the player wins, then calls back function: you_win
+def updated_dashes(word,input_letter,number_dashes):
+#everytime the player guesses a letter, it calls back thi function
+	for i in range(len(word)):
+#loops based on length of word
+		if input_letter == word[i]:
+#checks if the letter is equal to each letter individualy
+			number_dashes[i] = input_letter
+#if so, sets the position in "- - -" to the inputted leter
+	return (" ".join(number_dashes))
+#returns the updated progress "- - a" for example
+def you_lose(player_lives,word):
+#function is called back when player loses
+	print("The guesser loses!","The word was",word)
+	sys.exit()
+#prints what the word was then exits the program
+def you_win(player_lives,word):
+#function is called back when player wins
+	print("The guesser wins!","The word was",word)
+	again()
+	sys.exit()
+	
+	
+#prints what the word was then exits the program
+def visuals(player_lives):
+#This function is used to print the progress through visuals
+	if player_lives == 6:
+		return"""
+		_______
+		|     |
+		|     
+		|
+		|
+		|
+		|
+		|________
+		|        |
+		"""
+	elif player_lives == 5:
+		return"""
+		_______
+		|     |
+		|     O
+		|
+		|
+		|
+		|
+		|________
+		|        |
+		"""
+	elif player_lives == 4:
+		return"""
+		_______
+		|     |
+		|     O
+		|   --|
+		|
+		|
+		|
+		|________
+		|        |
+		"""
+	elif player_lives == 3:
+		return"""
+		_______
+		|     |
+		|     O
+		|   --|--
+		|
+		|
+		|
+		|________
+		|        |
+		"""
+	elif player_lives == 2:
+		return"""
+		_______
+		|     |
+		|     O
+		|   --|--
+		|     |
+		|    |
+		|
+		|________
+		|        |
+		"""
+	elif player_lives == 1:
+		return"""
+		_______
+		|     |
+		|     O
+		|   --|--
+		|     |
+		|    | |
+		|
+		|________
+		|        |
+		"""
+	elif player_lives == 0:
+		return"""
+		_______
+		|     |
+		|     l0
+		|    |||
+		|     |
+		|    | |
+		|
+		|________
+		| D E A D|
+		"""	
+
+
+
+def choose_word():
+    x= random.choice(words)
+    storeword(x)
+    return x
+words = ["fruit","border","image","film","promise","kids","lungs","doll","rhyme","damage"
+,"plants","table","Camera","Bandit","Celebrate","Marshmallow","Eyewitness"]
+
+letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+words = ["fruit","border","image","film","promise","kids","lungs","doll","rhyme","damage","plants","table","Camera","Bandit","Celebrate","Marshmallow","Eyewitness"]
+
+
+
+def Startsim():
+    Mistries = 0 		#Failed attempts
+    letters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+
+    usedletters = []
+    WordChoice = choose_word()
+    LWord  = ([*WordChoice])         #UNPACKING
+    x = 0
+    Rlets = []
+    i = 0
+    while x == 0:
+        LWord = list(set(LWord))
+        LWord.sort()
+        Rlets.sort()
+        if Rlets == LWord:
+            #print("It took the computer", len(usedletters),"Guesses to find the word")
+            #print("The computer guessed",Mistries,"Incorrect letters")
+            break
+        cletter = random.choice(letters)
+        usedletters.append(cletter)
+        letters.remove(cletter)
+        if cletter in LWord:
+            Rlets.append(cletter)
+        else:
+            Mistries = Mistries +1
+    return Mistries
+
+def choose_word():
+    return (random.choice(words)).lower()
+x = []
+for i in range(100):
+    x.append(int(Startsim()))
+y = sum(x)
+z = y/len(x)
+
+
+# Function to play the game
+def play_game():
+    # Choose a word
+    word = choose_word()
+    storeword(word)
+    
+    
+    # Keep track of guessed letters
+    guessed_letters = set()
+    # Keep track of remaining guesses
+    remaining_guesses = 6
+    # Loop until the game is over
+    while True:
+        print(hangman_stages[6 - remaining_guesses])
+        display_word = ''.join([letter if letter in guessed_letters else '_' for letter in word])
+        print(display_word)
+        if '_' not in display_word:
+            print('Congratulations, player one won!')
+            break
+        if remaining_guesses == 0:
+            print('Sorry, player one lost. The word was', word)
+            break
+        letter = input('Guess a letter: ')
+        if letter in guessed_letters:
+            print('You already guessed that letter!')
+        elif letter in word:
+            print('Good guess!')
+            guessed_letters.add(letter)
+        else:
+            print('Sorry, that letter is not in the word.')
+            guessed_letters.add(letter)
+            remaining_guesses -= 1
+            print('You have', remaining_guesses, 'guesses remaining.')
+    # Ask the player if they want to play again
+    play_again = input('Do you want to play again? (y/n) ')
+    if play_again == 'y':
+        play_game()
+hangman_stages = [
+       """
+		_______
+		|     |
+		|     
+		|
+		|
+		|
+		|
+		|________
+		|        |
+		""",
+        """
+	
+		_______
+		|     |
+		|     O
+		|
+		|
+		|
+		|
+		|________
+		|        |
+		""",
+        """
+		_______
+		|     |
+		|     O
+		|   --|
+		|
+		|
+		|
+		|________
+		|        |
+		""",
+        """
+		|     |
+		|     O
+		|   --|--
+		|
+		|
+		|
+		|________
+		|        |
+		""",
+        """
+		_______
+		|     |
+		|     O
+		|   --|--
+		|     |
+		|    |
+		|
+		|________
+		|        |
+		""",
+        """
+		_______
+		|     |
+		|     O
+		|   --|--
+		|     |
+		|    | |
+		|
+		|________
+		|        |
+        """,
+        """
+		_______
+		|     |
+		|     l0
+		|    |||
+		|     |
+		|    | |
+		|
+		|________
+		| D E A D|
+		"""
+     
+]
+
+
+
+plt.style.use('bmh')
+df = pd.read_csv('mycsv.csv')
+
+x = df['Word']
+y = df['Times']
+
+def graph():
+    plt.xlabel('Word', fontsize=18)
+    plt.ylabel('times', fontsize=16)
+    plt.scatter(x, y)
+    plt.plot(x, y)
+    plt.show()
+
+
+
+
+
+while True:
+    menu()
+    menus = (input())
+    if menus == "s":
+        play_game()
+    elif menus == "m":
+        multi()
+    if menus == "a":
+        Startsim()
+        print("The average incorrect guess was",z)
+    if menus =="j":
+        graph()
+        
+        
+  
+
